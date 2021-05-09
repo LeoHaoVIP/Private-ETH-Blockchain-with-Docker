@@ -1,0 +1,114 @@
+version: "3.9"
+
+services:
+  boot-node:
+    hostname: boot-node
+    container_name: geth-boot-node
+    environment:
+      - nodekeyhex=d71251a21d18d02606cb902282fb9fc8f9eada4ce68de93f98823d78f95b2a63
+      - bootnodeIP=172.25.0.101
+    build:
+      context: ./bootnode
+    ports:
+      - 30301:30301/udp
+      - 30301:30301/tcp
+    networks:
+      ethereum_net:
+        ipv4_address: 172.25.0.101
+
+  miner-1:
+    hostname: miner-1
+    container_name: geth-miner-1
+    depends_on:
+      - boot-node
+    ports:
+      - 8545:8545
+    environment:
+      - address=0xaBB014f9836A60db2846e4F799b3664372390C68
+      - bootnodeID=bb07775c3137c14e9f776f8c8bf83e0950b05107728ef5ebc0271c0f15b56d30360288bb97dfc677a9bef2cd94af8d6560e8ec28239c9f85b354278c8f2cda1f
+      - bootnodeIP=172.25.0.101
+    build:
+      context: ./miner
+      args:
+        privatekey: ca306fff0923f232ec7b967f33129e80f135b613defeb88a9ef7df2feb404c5b
+        password: klxqsys32h
+    volumes:
+      - eth-data-1:/root/.ethash
+    networks:
+      ethereum_net:
+        ipv4_address: 172.25.0.102
+
+  miner-2:
+    hostname: miner-2
+    container_name: geth-miner-2
+    depends_on:
+      - boot-node
+    ports:
+      - 8546:8545
+    environment:
+      - address=0x75eD7a239bEaa41B64981709b1e7c57C995E364F
+      - bootnodeID=bb07775c3137c14e9f776f8c8bf83e0950b05107728ef5ebc0271c0f15b56d30360288bb97dfc677a9bef2cd94af8d6560e8ec28239c9f85b354278c8f2cda1f
+      - bootnodeIP=172.25.0.101
+    build:
+      context: ./miner
+      args:
+        privatekey: fd9caea6b8f438b22989e478c4832868b43508393112879ff4c98e27a2b83b1a
+        password: klxqsys32h
+    volumes:
+      - eth-data-2:/root/.ethash
+    networks:
+      ethereum_net:
+        ipv4_address: 172.25.0.103
+
+  miner-3:
+    hostname: miner-3
+    container_name: geth-miner-3
+    depends_on:
+      - boot-node
+    ports:
+      - 8547:8545
+    environment:
+      - address=0x1b0a9057C6424e025F35A463E857152D146B736b
+      - bootnodeID=bb07775c3137c14e9f776f8c8bf83e0950b05107728ef5ebc0271c0f15b56d30360288bb97dfc677a9bef2cd94af8d6560e8ec28239c9f85b354278c8f2cda1f
+      - bootnodeIP=172.25.0.101
+    build:
+      context: ./miner
+      args:
+        privatekey: fba7c149d20f1329c8ba6f7c3f625e0e686b6907ed11aa2ffef0aa891d8f6fca
+        password: klxqsys32h
+    volumes:
+      - eth-data-2:/root/.ethash
+    networks:
+      ethereum_net:
+        ipv4_address: 172.25.0.104
+
+  geth-explorer:
+    hostname: explorer
+    container_name: geth-explorer
+    depends_on:
+      - miner-1
+      - miner-2
+      - miner-3
+    ports:
+      - 8080:8080
+    build:
+      context: ./explorer
+      args:
+        gethnodeIP: 192.168.65.101
+        gethnodePort: 8545
+        httpserverPort: 8080
+    networks:
+      ethereum_net:
+        ipv4_address: 172.25.0.105
+
+networks:
+  ethereum_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.25.0.0/24"
+
+volumes:
+  eth-data-1:
+  eth-data-2:
+  eth-data-3:

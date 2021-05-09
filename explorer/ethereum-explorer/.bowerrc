@@ -1,0 +1,5 @@
+{
+  "proxy" : "http://<host>:<port>",
+  "https-proxy" : "http://<host>:<port>",
+  "directory": "app/bower_components"
+}
